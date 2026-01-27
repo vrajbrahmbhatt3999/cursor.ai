@@ -1,0 +1,26 @@
+export enum PaymentStatus {
+  CREATED = 'CREATED',
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  SUCCEEDED = 'SUCCEEDED',
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED',
+  REFUNDED = 'REFUNDED',
+  PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
+}
+
+export enum PaymentAttemptStatus {
+  INITIATED = 'INITIATED',
+  PENDING = 'PENDING',
+  SUCCEEDED = 'SUCCEEDED',
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum PaymentMethod {
+  CARD = 'CARD',
+  UPI = 'UPI',
+  NETBANKING = 'NETBANKING',
+  WALLET = 'WALLET',
+  EMI = 'EMI',
+}

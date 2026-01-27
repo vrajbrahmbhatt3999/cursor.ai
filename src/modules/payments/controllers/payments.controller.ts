@@ -1,0 +1,62 @@
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  UnauthorizedException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiSecurity, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { PaymentOrchestratorService } from '../../orchestration/services/payment-orchestrator.service';
+import { PaymentIntentService } from '../services/payment-intent.service';
+import { CreatePaymentIntentDto } from '../dto/create-payment-intent.dto';
+import { AuthGuard } from '../../auth/guards/auth.guard';
+import { Merchant, MerchantContext } from '../../../common/decorators/merchant.decorator';
+
+@ApiTags('payments')
+@Controller('payments')
+@UseGuards(AuthGuard)
+@ApiSecurity('api-key')
+export class PaymentsController {
+  constructor(
+    @Inject(forwardRef(() => PaymentOrchestratorService))
+    private readonly orchestratorService: PaymentOrchestratorService,
+    private readonly paymentIntentService: PaymentIntentService,
+  ) {}
+
+  @Post('initiate')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Initiate a new payment' })
+  @ApiResponse({ status: 201, description: 'Payment initiated successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid request' })
+  @ApiResponse({ status: 409, description: 'Duplicate idempotency key' })
+  async initiatePayment(
+    @Body() dto: CreatePaymentIntentDto,
+    @Merchant() merchant: MerchantContext,
+  ) {
+    return this.orchestratorService.initiatePayment(merchant.id, dto);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get payment intent by ID' })
+  @ApiParam({ name: 'id', description: 'Payment Intent ID' })
+  @ApiResponse({ status: 200, description: 'Payment intent retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Payment intent not found' })
+  async getPaymentIntent(
+    @Param('id') id: string,
+    @Merchant() merchant: MerchantContext,
+  ) {
+    const paymentIntent = await this.paymentIntentService.findById(id);
+    
+    if (paymentIntent.merchantId !== merchant.id) {
+      throw new UnauthorizedException('Unauthorized access to payment intent');
+    }
+
+    return paymentIntent;
+  }
+}
