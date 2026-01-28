@@ -59,4 +59,12 @@ export class PaymentIntentService {
 
     return this.paymentIntentRepository.save(paymentIntent);
   }
+
+  async findByMerchantId(merchantId: string): Promise<PaymentIntent[]> {
+    return this.paymentIntentRepository.find({
+      where: { merchantId },
+      relations: ['attempts', 'stateTransitions'],
+      order: { createdAt: 'DESC' },
+    });
+  }
 }

@@ -59,4 +59,11 @@ export class PaymentsController {
 
     return paymentIntent;
   }
+
+  @Get()
+  @ApiOperation({ summary: 'List payment intents for merchant' })
+  @ApiResponse({ status: 200, description: 'Payment intents retrieved successfully' })
+  async listPaymentIntents(@Merchant() merchant: MerchantContext) {
+    return this.paymentIntentService.findByMerchantId(merchant.id);
+  }
 }

@@ -26,4 +26,14 @@ export class HealthController {
       () => this.memory.checkRSS('memory_rss', 150 * 1024 * 1024),
     ]);
   }
+
+  @Get('version')
+  @ApiOperation({ summary: 'Get application version' })
+  getVersion() {
+    return {
+      version: '1.0.0',
+      name: 'Ethics Pay',
+      description: 'Payment Orchestration Platform',
+    };
+  }
 }
