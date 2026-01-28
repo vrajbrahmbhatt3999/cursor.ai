@@ -65,12 +65,14 @@ export class PaymentIntentService {
     page: number = 1,
     limit: number = 10,
   ): Promise<PaymentIntent[]> {
-    const skip = (page - 1) * limit;
+    const clampedPage = Math.max(page, 1);
+    const clampedLimit = Math.min(Math.max(limit, 1), 100);
+    const skip = (clampedPage - 1) * clampedLimit;
     return this.paymentIntentRepository.find({
       where: { merchantId },
       relations: ['attempts', 'stateTransitions'],
       order: { createdAt: 'DESC' },
-      take: limit,
+      take: clampedLimit,
       skip: skip,
     });
   }

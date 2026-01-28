@@ -51,8 +51,8 @@ export class PaymentsController {
     @Query('limit') limit: string = '10',
     @Merchant() merchant: MerchantContext,
   ) {
-    const pageNum = parseInt(page, 10) || 1;
-    const limitNum = Math.min(parseInt(limit, 10) || 10, 100); // max 100
+    const pageNum = /^\d+$/.test(page) ? Math.max(parseInt(page, 10), 1) : 1;
+    const limitNum = /^\d+$/.test(limit) ? Math.min(Math.max(parseInt(limit, 10), 1), 100) : 10;
     return this.paymentIntentService.findByMerchantId(merchant.id, pageNum, limitNum);
   }
 
