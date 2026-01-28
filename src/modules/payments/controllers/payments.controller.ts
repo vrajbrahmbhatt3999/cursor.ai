@@ -4,6 +4,7 @@ import {
   Get,
   Body,
   Param,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -42,6 +43,19 @@ export class PaymentsController {
     return this.orchestratorService.initiatePayment(merchant.id, dto);
   }
 
+  @Get()
+  @ApiOperation({ summary: 'List payment intents for merchant' })
+  @ApiResponse({ status: 200, description: 'Payment intents retrieved successfully' })
+  async listPaymentIntents(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Merchant() merchant: MerchantContext,
+  ) {
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = Math.min(parseInt(limit, 10) || 10, 100); // max 100
+    return this.paymentIntentService.findByMerchantId(merchant.id, pageNum, limitNum);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get payment intent by ID' })
   @ApiParam({ name: 'id', description: 'Payment Intent ID' })
@@ -58,12 +72,5 @@ export class PaymentsController {
     }
 
     return paymentIntent;
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'List payment intents for merchant' })
-  @ApiResponse({ status: 200, description: 'Payment intents retrieved successfully' })
-  async listPaymentIntents(@Merchant() merchant: MerchantContext) {
-    return this.paymentIntentService.findByMerchantId(merchant.id);
   }
 }

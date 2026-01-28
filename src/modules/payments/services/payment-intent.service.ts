@@ -60,11 +60,18 @@ export class PaymentIntentService {
     return this.paymentIntentRepository.save(paymentIntent);
   }
 
-  async findByMerchantId(merchantId: string): Promise<PaymentIntent[]> {
+  async findByMerchantId(
+    merchantId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaymentIntent[]> {
+    const skip = (page - 1) * limit;
     return this.paymentIntentRepository.find({
       where: { merchantId },
       relations: ['attempts', 'stateTransitions'],
       order: { createdAt: 'DESC' },
+      take: limit,
+      skip: skip,
     });
   }
 }
