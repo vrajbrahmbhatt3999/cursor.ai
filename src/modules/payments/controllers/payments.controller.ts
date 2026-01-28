@@ -12,7 +12,7 @@ import {
   Inject,
   forwardRef,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiSecurity, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiSecurity, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { PaymentOrchestratorService } from '../../orchestration/services/payment-orchestrator.service';
 import { PaymentIntentService } from '../services/payment-intent.service';
 import { CreatePaymentIntentDto } from '../dto/create-payment-intent.dto';
@@ -46,6 +46,8 @@ export class PaymentsController {
   @Get()
   @ApiOperation({ summary: 'List payment intents for merchant' })
   @ApiResponse({ status: 200, description: 'Payment intents retrieved successfully' })
+  @ApiQuery({ name: 'page', type: Number, required: false, description: 'Page number for pagination (minimum: 1)', example: 1 })
+  @ApiQuery({ name: 'limit', type: Number, required: false, description: 'Number of items per page (minimum: 1, maximum: 100)', example: 10 })
   async listPaymentIntents(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
