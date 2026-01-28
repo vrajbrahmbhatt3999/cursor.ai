@@ -4,6 +4,7 @@ import {
   Get,
   Body,
   Param,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -11,7 +12,7 @@ import {
   Inject,
   forwardRef,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiSecurity, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiSecurity, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { PaymentOrchestratorService } from '../../orchestration/services/payment-orchestrator.service';
 import { PaymentIntentService } from '../services/payment-intent.service';
 import { CreatePaymentIntentDto } from '../dto/create-payment-intent.dto';
@@ -40,6 +41,21 @@ export class PaymentsController {
     @Merchant() merchant: MerchantContext,
   ) {
     return this.orchestratorService.initiatePayment(merchant.id, dto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'List payment intents for merchant' })
+  @ApiResponse({ status: 200, description: 'Payment intents retrieved successfully' })
+  @ApiQuery({ name: 'page', type: Number, required: false, description: 'Page number for pagination (minimum: 1)', example: 1 })
+  @ApiQuery({ name: 'limit', type: Number, required: false, description: 'Number of items per page (minimum: 1, maximum: 100)', example: 10 })
+  async listPaymentIntents(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Merchant() merchant: MerchantContext,
+  ) {
+    const pageNum = /^\d+$/.test(page) ? Math.max(parseInt(page, 10), 1) : 1;
+    const limitNum = /^\d+$/.test(limit) ? Math.min(Math.max(parseInt(limit, 10), 1), 100) : 10;
+    return this.paymentIntentService.findByMerchantId(merchant.id, pageNum, limitNum);
   }
 
   @Get(':id')

@@ -59,4 +59,21 @@ export class PaymentIntentService {
 
     return this.paymentIntentRepository.save(paymentIntent);
   }
+
+  async findByMerchantId(
+    merchantId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaymentIntent[]> {
+    const clampedPage = Math.max(page, 1);
+    const clampedLimit = Math.min(Math.max(limit, 1), 100);
+    const skip = (clampedPage - 1) * clampedLimit;
+    return this.paymentIntentRepository.find({
+      where: { merchantId },
+      relations: ['attempts', 'stateTransitions'],
+      order: { createdAt: 'DESC' },
+      take: clampedLimit,
+      skip: skip,
+    });
+  }
 }
