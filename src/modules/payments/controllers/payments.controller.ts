@@ -24,6 +24,11 @@ import { Merchant, MerchantContext } from '../../../common/decorators/merchant.d
 @UseGuards(AuthGuard)
 @ApiSecurity('api-key')
 export class PaymentsController {
+  /**
+   * Creates an instance of PaymentsController.
+   * @param orchestratorService - Service for orchestrating payment operations
+   * @param paymentIntentService - Service for managing payment intents
+   */
   constructor(
     @Inject(forwardRef(() => PaymentOrchestratorService))
     private readonly orchestratorService: PaymentOrchestratorService,
